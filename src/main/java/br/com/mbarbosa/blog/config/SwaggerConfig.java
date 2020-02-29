@@ -31,33 +31,6 @@ public class SwaggerConfig {
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .useDefaultResponseMessages(false)
-                .globalResponseMessage(RequestMethod.GET, responseMessageForGET())
-                .globalResponseMessage(RequestMethod.POST, responseMessageForPOST());
-    }
-
-    private List<ResponseMessage> responseMessageForPOST() {
-        return new ArrayList<ResponseMessage>() {{
-            add(new ResponseMessageBuilder()
-                    .code(201)
-                    .message("Recurso criado com sucesso.")
-                    .responseModel(new ModelRef("Sucesso"))
-                    .build());
-        }};
-    }
-
-    private List<ResponseMessage> responseMessageForGET()
-    {
-        return new ArrayList<ResponseMessage>() {{
-            add(new ResponseMessageBuilder()
-                    .code(500)
-                    .message("Erro interno do servidor.")
-                    .responseModel(new ModelRef("Error"))
-                    .build());
-            add(new ResponseMessageBuilder()
-                    .code(404)
-                    .message("Recurso não encontrado.")
-                    .build());
-        }};
     }
 
     private ApiInfo apiInfo() {
