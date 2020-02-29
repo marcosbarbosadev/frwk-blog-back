@@ -28,13 +28,15 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public void deleteById(Long id) {
-        commentRepository.deleteById(id);
+    public void deleteById(Long id) throws NotFoundException {
+        Optional<Comment> commentOptional = commentRepository.findById(id);
+        Comment comment = commentOptional.orElseThrow(
+                () -> new NotFoundException("Comentário com id " + id + " não foi encontrado."));
+        commentRepository.delete(comment);
     }
 
     public Comment createComment(Comment comment, Long postId) throws NotFoundException {
         Optional<Post> optionalPost = postRepository.findById(postId);
-
         Post post = optionalPost.orElseThrow(
                 () -> new NotFoundException("Post com id "+ postId + " não foi encontrado."));
 

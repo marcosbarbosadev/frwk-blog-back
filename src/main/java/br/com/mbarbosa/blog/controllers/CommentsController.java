@@ -29,7 +29,8 @@ public class CommentsController {
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
-    @PostMapping(value = "post_id/{postId}" ,consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "post_id/{postId}", consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@PathVariable(required = true) Long postId, @Valid @RequestBody final Comment comment) {
 
         Comment commentCreated = null;
@@ -44,7 +45,11 @@ public class CommentsController {
 
     @DeleteMapping( value = "{id}")
     public ResponseEntity<?> delete(@PathVariable(required = true) Long id) {
-        commentService.deleteById(id);
+        try {
+            commentService.deleteById(id);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 

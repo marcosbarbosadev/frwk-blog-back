@@ -1,7 +1,6 @@
 package br.com.mbarbosa.blog.controllers;
 
-import br.com.mbarbosa.blog.models.Post;
-import br.com.mbarbosa.blog.services.PostService;
+import br.com.mbarbosa.blog.models.User;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,28 +12,28 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "posts")
-public class PostsController {
+@RequestMapping(value = "users")
+public class UsersController {
 
     @Autowired
-    private PostService postService;
+    private UserService userService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> index() {
-        List<Post> posts = postService.findAllFetchComments();
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+        List<User> users = userService.findAll();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> create(@Valid @RequestBody final Post post) {
-        Post postCreated = postService.save(post);
-        return new ResponseEntity<>(postCreated, HttpStatus.CREATED);
+    public ResponseEntity<?> create(@Valid @RequestBody final User user) {
+        User userCreated = userService.save(user);
+        return new ResponseEntity<>(userCreated, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "{id}")
     public ResponseEntity<?> delete(@PathVariable(required = true) Long id) {
         try {
-            postService.deleteById(id);
+            userService.deleteById(id);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

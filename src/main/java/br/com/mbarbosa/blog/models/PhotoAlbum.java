@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ public class PhotoAlbum implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(hidden = true)
     private Long id;
 
     @Column(length = 50)
@@ -28,6 +30,10 @@ public class PhotoAlbum implements Serializable {
 
     @ManyToOne
     private User user;
+
+    @OneToMany(mappedBy = "photoAlbum", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ApiModelProperty(hidden = true)
+    private List<Photo> photos;
 
     @ApiModelProperty(hidden = true)
     @CreationTimestamp

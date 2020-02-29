@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
 @Table(name = "comments", schema = "frwk_blog")
 public class Comment implements Serializable {
 
-    @ApiModelProperty(hidden = true)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(hidden = true)
     private Long id;
 
     @Column(columnDefinition = "text")

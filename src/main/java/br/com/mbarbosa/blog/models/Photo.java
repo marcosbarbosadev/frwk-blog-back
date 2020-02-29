@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class Photo implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(hidden = true)
     private Long id;
 
     @Column(length = 100)
@@ -25,6 +27,11 @@ public class Photo implements Serializable {
 
     @Column(columnDefinition = "text")
     private String description;
+
+    @ManyToOne
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
+    private PhotoAlbum photoAlbum;
 
     @ApiModelProperty(hidden = true)
     @CreationTimestamp

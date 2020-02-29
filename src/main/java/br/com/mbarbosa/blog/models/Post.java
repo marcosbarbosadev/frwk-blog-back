@@ -21,6 +21,7 @@ public class Post implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(hidden = true)
     private Long id;
 
     @NotNull(message = "O título é obrigatório.")
@@ -40,7 +41,7 @@ public class Post implements Serializable {
     @ManyToMany
     @JoinTable(name = "post_has_photos", joinColumns = {@JoinColumn(name = "post_id")},
     inverseJoinColumns = {@JoinColumn(name = "photo_id")}, schema = "frwk_blog")
-    private List<Photo> fotos;
+    private List<Photo> photos;
 
     @ManyToOne
     private User user;
