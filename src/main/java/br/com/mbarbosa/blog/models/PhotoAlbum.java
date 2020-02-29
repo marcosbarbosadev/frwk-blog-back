@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.models;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,10 +29,12 @@ public class PhotoAlbum implements Serializable {
     @ManyToOne
     private User user;
 
+    @ApiModelProperty(hidden = true)
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @ApiModelProperty(hidden = true)
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

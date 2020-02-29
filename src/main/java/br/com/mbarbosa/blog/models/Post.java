@@ -1,14 +1,14 @@
 package br.com.mbarbosa.blog.models;
 
-import lombok.EqualsAndHashCode;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.ManyToAny;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,14 +23,18 @@ public class Post implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "O título é obrigatório.")
+    @NotEmpty(message = "O título não pode estar vazio.")
     @Column(length = 150)
     private String title;
 
+    @NotNull(message = "O título é obrigatório.")
+    @NotEmpty(message = "O título não pode estar vazio.")
     @Column(columnDefinition = "text")
     private String description;
 
-    @OneToMany
-    @JoinColumn(name = "post_id")
+    @ApiModelProperty(hidden = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments;
 
     @ManyToMany
@@ -41,10 +45,12 @@ public class Post implements Serializable {
     @ManyToOne
     private User user;
 
+    @ApiModelProperty(hidden = true)
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @ApiModelProperty(hidden = true)
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

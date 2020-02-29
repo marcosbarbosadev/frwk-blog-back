@@ -1,6 +1,7 @@
 package br.com.mbarbosa.blog.models;
 
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Table(name = "comments", schema = "frwk_blog")
 public class Comment implements Serializable {
 
+    @ApiModelProperty(hidden = true)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,13 +25,21 @@ public class Comment implements Serializable {
     @Column(columnDefinition = "text")
     private String description;
 
+    @ApiModelProperty(hidden = true)
     @ManyToOne
     private User user;
 
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
+    @ManyToOne
+    private Post post;
+
+    @ApiModelProperty(hidden = true)
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @ApiModelProperty(hidden = true)
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
