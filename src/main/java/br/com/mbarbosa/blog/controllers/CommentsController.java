@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.acl.NotOwnerException;
 import java.util.List;
 
 @RestController
@@ -30,14 +31,14 @@ public class CommentsController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?>  index() {
-        List<Comment> posts = commentService.findAll();
+        List<Comment> posts = commentService.findAllOrderByCreatedAtDesc();
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
     @PostMapping(value = "post-id/{postId}", consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestHeader(value = "Authorization") final String authorization,
-           @PathVariable(required = true) Long postId, @Valid @RequestBody final Comment comment) {
+                                    @PathVariable(required = true) Long postId, @Valid @RequestBody final Comment comment) {
 
         User user = userService.getRequestUser(authorization);
 
@@ -52,11 +53,15 @@ public class CommentsController {
     }
 
     @DeleteMapping( value = "{id}")
-    public ResponseEntity<?> delete(@PathVariable(required = true) final Long id) {
+    public ResponseEntity<?> delete(@RequestHeader(value = "Authorization") final String authorization,
+                                    @PathVariable(required = true) final Long id) {
         try {
-            commentService.deleteById(id);
+            User user = userService.getRequestUser(authorization);
+            commentService.deleteById(id, user);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (NotOwnerException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }

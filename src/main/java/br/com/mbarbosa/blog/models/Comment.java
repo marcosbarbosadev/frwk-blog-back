@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.models;
 
+import br.com.mbarbosa.blog.interfaces.OwnerResource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "comments", schema = "frwk_blog")
-public class Comment implements Serializable {
+public class Comment implements Serializable, OwnerResource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.models;
 
+import br.com.mbarbosa.blog.interfaces.OwnerResource;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "posts", schema = "frwk_blog")
-public class Post implements Serializable {
+public class Post implements Serializable, OwnerResource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

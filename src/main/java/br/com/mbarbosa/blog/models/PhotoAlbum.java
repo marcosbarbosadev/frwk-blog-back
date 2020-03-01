@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.models;
 
+import br.com.mbarbosa.blog.interfaces.OwnerResource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +18,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "photo_albums", schema = "frwk_blog")
-public class PhotoAlbum implements Serializable {
+public class PhotoAlbum implements Serializable, OwnerResource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

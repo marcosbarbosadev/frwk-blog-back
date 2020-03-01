@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.acl.NotOwnerException;
 import java.util.List;
 
 @RestController
@@ -40,11 +41,15 @@ public class PostsController {
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<?> delete(@PathVariable(required = true) final Long id) {
+    public ResponseEntity<?> delete(@RequestHeader(value = "Authorization") final String authorization,
+                                    @PathVariable(required = true) final Long id) {
         try {
-            postService.deleteById(id);
+            User user = userService.getRequestUser(authorization);
+            postService.deleteById(id, user);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (NotOwnerException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -7,6 +7,7 @@ import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.acl.NotOwnerException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,9 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private OwnerResourceService ownerResourceService;
+
     public Optional<Post> findById(Long id) {
         return postRepository.findById(id);
     }
@@ -24,9 +28,15 @@ public class PostService {
         return postRepository.findAllFetchComments();
     }
 
-    public void deleteById(Long id) throws NotFoundException {
+    public void deleteById(Long id, User user) throws NotFoundException, NotOwnerException {
         Optional<Post> postOptional = postRepository.findById(id);
-        Post post = postOptional.orElseThrow(() -> new NotFoundException("Post com id " + id + " não foi encontrado."));
+        Post post = postOptional.orElseThrow(
+                () -> new NotFoundException("Post com id " + id + " não foi encontrado."));
+
+        if(!isOwnerPost(post, user)) {
+            throw new NotOwnerException();
+        }
+
         postRepository.delete(post);
     }
 
@@ -34,4 +44,9 @@ public class PostService {
         post.setUser(user);
         return postRepository.save(post);
     }
+
+    private boolean isOwnerPost(Post post, User user) {
+        return ownerResourceService.isOwner(post, user);
+    }
+
 }

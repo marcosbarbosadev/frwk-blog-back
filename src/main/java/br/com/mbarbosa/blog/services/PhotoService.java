@@ -2,12 +2,14 @@ package br.com.mbarbosa.blog.services;
 
 import br.com.mbarbosa.blog.models.Photo;
 import br.com.mbarbosa.blog.models.PhotoAlbum;
+import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.repositories.PhotoAlbumRepository;
 import br.com.mbarbosa.blog.repositories.PhotoRepository;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.acl.NotOwnerException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +21,9 @@ public class PhotoService {
 
     @Autowired
     private PhotoAlbumRepository photoAlbumRepository;
+
+    @Autowired
+    private OwnerResourceService ownerResourceService;
 
     public List<Photo> findAll() {
         return photoRepository.findAll();
@@ -36,9 +41,19 @@ public class PhotoService {
         return photoRepository.save(photo);
     }
 
-    public void deleteById(Long id) throws NotFoundException {
+    public void deleteById(Long id, User user) throws NotFoundException, NotOwnerException {
         Optional<Photo> photoOptional = photoRepository.findById(id);
-        Photo photo = photoOptional.orElseThrow(() -> new NotFoundException("Foto com id " + id + " não foi encontrado"));
+        Photo photo = photoOptional.orElseThrow(
+                () -> new NotFoundException("Foto com id " + id + " não foi encontrado"));
+
+        if(!isOwnerPhotoAlbum(photo.getPhotoAlbum(), user)) {
+            throw new NotOwnerException();
+        }
+
         photoRepository.delete(photo);
+    }
+
+    private boolean isOwnerPhotoAlbum(PhotoAlbum photoAlbum, User user) {
+        return ownerResourceService.isOwner(photoAlbum, user);
     }
 }

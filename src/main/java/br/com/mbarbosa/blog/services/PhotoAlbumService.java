@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.acl.NotOwnerException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -34,15 +35,23 @@ public class PhotoAlbumService {
     @Autowired
     private Environment env;
 
+    @Autowired
+    private OwnerResourceService ownerResourceService;
+
     public PhotoAlbum createPhotoAlbum(PhotoAlbum photoAlbum, User user) {
         photoAlbum.setUser(user);
         return photoAlbumRepository.save(photoAlbum);
     }
 
-
-    public void deleteById(Long id) throws NotFoundException {
+    public void deleteById(Long id, User user) throws NotFoundException, NotOwnerException {
         Optional<PhotoAlbum> photoAlbumOptional = photoAlbumRepository.findById(id);
-        PhotoAlbum photoAlbum = photoAlbumOptional.orElseThrow(() -> new NotFoundException("Post com id " + id + " não foi encontrado."));
+        PhotoAlbum photoAlbum = photoAlbumOptional.orElseThrow(
+                () -> new NotFoundException("Post com id " + id + " não foi encontrado."));
+
+        if(!isOwnerPhotoAlbum(photoAlbum, user)) {
+            throw new NotOwnerException();
+        }
+
         photoAlbumRepository.delete(photoAlbum);
     }
 
@@ -77,5 +86,10 @@ public class PhotoAlbumService {
         BufferedImage bufferedImage = ImageIO.read(bis);
         ImageIO.write(bufferedImage, "jpg", new File(path.toString()));
     }
+
+    public boolean isOwnerPhotoAlbum(PhotoAlbum photoAlbum, User user) {
+        return ownerResourceService.isOwner(photoAlbum, user);
+    }
+
 
 }

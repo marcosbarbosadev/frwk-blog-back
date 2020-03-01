@@ -1,8 +1,10 @@
 package br.com.mbarbosa.blog.controllers;
 
 import br.com.mbarbosa.blog.models.Photo;
+import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.services.PhotoAlbumService;
 import br.com.mbarbosa.blog.services.PhotoService;
+import br.com.mbarbosa.blog.services.UserService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.security.acl.NotOwnerException;
 import java.util.List;
 
 @RestController
@@ -23,6 +26,10 @@ public class PhotosController {
 
     @Autowired
     private PhotoAlbumService photoAlbumService;
+
+    @Autowired
+    private UserService userService;
+
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> index() {
@@ -46,11 +53,15 @@ public class PhotosController {
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<?> delete(@PathVariable(required = true) final Long id) {
+    public ResponseEntity<?> delete(@RequestHeader(value = "Authorization") final String authorization,
+                                    @PathVariable(required = true) final Long id) {
         try {
-            photoService.deleteById(id);
+            User user = userService.getRequestUser(authorization);
+            photoService.deleteById(id, user);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (NotOwnerException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

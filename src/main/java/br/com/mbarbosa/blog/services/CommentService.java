@@ -7,8 +7,10 @@ import br.com.mbarbosa.blog.repositories.CommentRepository;
 import br.com.mbarbosa.blog.repositories.PostRepository;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.security.acl.NotOwnerException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,18 +23,26 @@ public class CommentService {
     @Autowired
     private PostRepository postRepository;
 
-    public List<Comment> findAll() {
-        return commentRepository.findAll();
+    @Autowired
+    private OwnerResourceService ownerResourceService;
+
+    public List<Comment> findAllOrderByCreatedAtDesc() {
+        return commentRepository.findAll(Sort.by(Sort.Direction.ASC, "createdAt"));
     }
 
     public Comment save(Comment comment) {
         return commentRepository.save(comment);
     }
 
-    public void deleteById(Long id) throws NotFoundException {
+    public void deleteById(Long id, User user) throws NotFoundException, NotOwnerException {
         Optional<Comment> commentOptional = commentRepository.findById(id);
         Comment comment = commentOptional.orElseThrow(
                 () -> new NotFoundException("Comentário com id " + id + " não foi encontrado."));
+
+        if(!isOwnerComment(comment, user)) {
+            throw new NotOwnerException();
+        }
+
         commentRepository.delete(comment);
     }
 
@@ -44,6 +54,10 @@ public class CommentService {
         comment.setPost(post);
         comment.setUser(user);
         return commentRepository.save(comment);
+    }
+
+    public boolean isOwnerComment(Comment comment, User user) {
+        return ownerResourceService.isOwner(comment, user);
     }
 
 }
