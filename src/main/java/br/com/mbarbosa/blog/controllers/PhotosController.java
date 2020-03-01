@@ -1,6 +1,7 @@
 package br.com.mbarbosa.blog.controllers;
 
 import br.com.mbarbosa.blog.models.Photo;
+import br.com.mbarbosa.blog.services.PhotoAlbumService;
 import br.com.mbarbosa.blog.services.PhotoService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class PhotosController {
     @Autowired
     private PhotoService photoService;
 
+    @Autowired
+    private PhotoAlbumService photoAlbumService;
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> index() {
         List<Photo> photoAlbums = photoService.findAll();
@@ -30,7 +34,7 @@ public class PhotosController {
 
         Photo photoCreated = null;
         try {
-            photoCreated = photoService.save(photo, photoAlbumId);
+            photoCreated = photoAlbumService.addPhoto(photo, photoAlbumId);
         } catch (NotFoundException ex) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

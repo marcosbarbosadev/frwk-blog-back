@@ -22,11 +22,15 @@ public class Photo implements Serializable {
     @ApiModelProperty(hidden = true)
     private Long id;
 
-    @Column(length = 100)
+    @ApiModelProperty(hidden = true)
+    @Column(length = 40)
     private String name;
 
     @Column(columnDefinition = "text")
     private String description;
+
+    @Transient
+    private String imageContents;
 
     @ManyToOne
     @JsonIgnore

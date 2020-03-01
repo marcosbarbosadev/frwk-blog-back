@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "photo-albuns")
+@RequestMapping(value = "photo-albums")
 public class PhotoAlbumsController {
 
     @Autowired

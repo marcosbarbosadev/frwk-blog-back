@@ -32,6 +32,7 @@ public class PhotoService {
                 () -> new NotFoundException("Álbum com id " + photoAlbumId + "não foi encontrado."));
 
         photo.setPhotoAlbum(photoAlbum);
+
         return photoRepository.save(photo);
     }
 
