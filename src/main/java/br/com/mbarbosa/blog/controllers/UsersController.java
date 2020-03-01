@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.controllers;
 
+import br.com.mbarbosa.blog.exceptions.ResourceAlreadyExists;
 import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.services.UserService;
 import javassist.NotFoundException;
@@ -27,7 +28,12 @@ public class UsersController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@Valid @RequestBody final User user) {
-        User userCreated = userService.save(user);
+        User userCreated = null;
+        try {
+            userCreated = userService.createUser(user);
+        } catch (ResourceAlreadyExists ex) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         return new ResponseEntity<>(userCreated, HttpStatus.CREATED);
     }
 

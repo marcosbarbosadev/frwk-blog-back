@@ -1,11 +1,11 @@
 package br.com.mbarbosa.blog.services;
 
 import br.com.mbarbosa.blog.config.JwtTokenUtil;
+import br.com.mbarbosa.blog.exceptions.ResourceAlreadyExists;
 import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.repositories.UserRepository;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +28,15 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User save(User user) {
+    public User createUser(User user) throws ResourceAlreadyExists {
 
-        Example<User> userExample = Example.of(user);
-        if(!userRepository.exists(userExample)) {
-            String encodedPassword = passwordEncoder.encode(user.getPassword());
-            user.setPassword(encodedPassword);
+        User exists = userRepository.findByEmail(user.getEmail());
+        if(exists != null) {
+            throw new ResourceAlreadyExists("Já existe uma usuário com o e-mail informado.");
         }
+
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
 
         return userRepository.save(user);
     }
