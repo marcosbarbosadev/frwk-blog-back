@@ -2,6 +2,7 @@ package br.com.mbarbosa.blog.services;
 
 import br.com.mbarbosa.blog.models.Comment;
 import br.com.mbarbosa.blog.models.Post;
+import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.repositories.CommentRepository;
 import br.com.mbarbosa.blog.repositories.PostRepository;
 import javassist.NotFoundException;
@@ -35,12 +36,13 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    public Comment createComment(Comment comment, Long postId) throws NotFoundException {
+    public Comment createComment(Comment comment, Long postId, User user) throws NotFoundException {
         Optional<Post> optionalPost = postRepository.findById(postId);
         Post post = optionalPost.orElseThrow(
                 () -> new NotFoundException("Post com id "+ postId + " não foi encontrado."));
 
         comment.setPost(post);
+        comment.setUser(user);
         return commentRepository.save(comment);
     }
 

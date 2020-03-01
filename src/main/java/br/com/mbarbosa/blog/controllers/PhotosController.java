@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -37,13 +38,15 @@ public class PhotosController {
             photoCreated = photoAlbumService.addPhoto(photo, photoAlbumId);
         } catch (NotFoundException ex) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return new ResponseEntity<>(photoCreated, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<?> delete(@PathVariable(required = true) Long id) {
+    public ResponseEntity<?> delete(@PathVariable(required = true) final Long id) {
         try {
             photoService.deleteById(id);
         } catch (NotFoundException e) {

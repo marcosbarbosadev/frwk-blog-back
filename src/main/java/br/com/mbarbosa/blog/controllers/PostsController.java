@@ -1,7 +1,9 @@
 package br.com.mbarbosa.blog.controllers;
 
 import br.com.mbarbosa.blog.models.Post;
+import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.services.PostService;
+import br.com.mbarbosa.blog.services.UserService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,9 @@ public class PostsController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> index() {
         List<Post> posts = postService.findAllFetchComments();
@@ -26,13 +31,16 @@ public class PostsController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> create(@Valid @RequestBody final Post post) {
-        Post postCreated = postService.save(post);
+    public ResponseEntity<?> create(@RequestHeader(value = "Authorization") final String authorization,
+        @Valid @RequestBody final Post post) {
+
+        User user = userService.getRequestUser(authorization);
+        Post postCreated = postService.createPost(post, user);
         return new ResponseEntity<>(postCreated, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<?> delete(@PathVariable(required = true) Long id) {
+    public ResponseEntity<?> delete(@PathVariable(required = true) final Long id) {
         try {
             postService.deleteById(id);
         } catch (NotFoundException e) {

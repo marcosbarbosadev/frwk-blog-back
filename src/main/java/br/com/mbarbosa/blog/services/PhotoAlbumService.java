@@ -2,6 +2,7 @@ package br.com.mbarbosa.blog.services;
 
 import br.com.mbarbosa.blog.models.Photo;
 import br.com.mbarbosa.blog.models.PhotoAlbum;
+import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.repositories.PhotoAlbumRepository;
 import br.com.mbarbosa.blog.repositories.PhotoRepository;
 import javassist.NotFoundException;
@@ -14,7 +15,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -34,9 +34,11 @@ public class PhotoAlbumService {
     @Autowired
     private Environment env;
 
-    public PhotoAlbum create(PhotoAlbum photoAlbum) {
+    public PhotoAlbum createPhotoAlbum(PhotoAlbum photoAlbum, User user) {
+        photoAlbum.setUser(user);
         return photoAlbumRepository.save(photoAlbum);
     }
+
 
     public void deleteById(Long id) throws NotFoundException {
         Optional<PhotoAlbum> photoAlbumOptional = photoAlbumRepository.findById(id);
@@ -48,35 +50,32 @@ public class PhotoAlbumService {
         return photoAlbumRepository.findAllFetchPhotos();
     }
 
-    public Photo addPhoto(Photo photo, Long photoAlbumId) throws NotFoundException {
+    public Photo addPhoto(Photo photo, Long photoAlbumId) throws NotFoundException, IOException {
 
         Optional<PhotoAlbum> photoAlbumOptional = photoAlbumRepository.findById(photoAlbumId);
 
         PhotoAlbum photoAlbum = photoAlbumOptional.orElseThrow(
                 () -> new NotFoundException("Álbum com id " + photoAlbumId + "não foi encontrado."));
 
-
-        String imageName = UUID.randomUUID().toString();
-        photo.setName(imageName);
-        byte[] imageContents = Base64.getDecoder().decode(photo.getImageContents());
-
-        try {
-
-            URL uploads = getClass().getClassLoader().getResource("uploads");
-            URL uploads2 = getClass().getClassLoader().getResource("application.properties");
-
-            String dirUpload = env.getProperty("blog.upload_dir");
-            Path path = Paths.get(dirUpload, imageName + ".jpg");
-
-            ByteArrayInputStream bis = new ByteArrayInputStream(imageContents);
-            BufferedImage bufferedImage = ImageIO.read(bis);
-            ImageIO.write(bufferedImage, "jpg", new File(path.toString()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        saveImageFile(photo);
 
         photo.setPhotoAlbum(photoAlbum);
 
         return photoRepository.save(photo);
     }
+
+    private void saveImageFile(Photo photo) throws IOException {
+        String imageName = UUID.randomUUID().toString();
+        photo.setName(imageName);
+
+        byte[] imageContents = Base64.getDecoder().decode(photo.getImageContents());
+
+        String dirUpload = env.getProperty("blog.upload_dir");
+        Path path = Paths.get(dirUpload, imageName + ".jpg");
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageContents);
+        BufferedImage bufferedImage = ImageIO.read(bis);
+        ImageIO.write(bufferedImage, "jpg", new File(path.toString()));
+    }
+
 }

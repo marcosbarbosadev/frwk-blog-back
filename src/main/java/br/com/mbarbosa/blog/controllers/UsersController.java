@@ -1,6 +1,7 @@
 package br.com.mbarbosa.blog.controllers;
 
 import br.com.mbarbosa.blog.models.User;
+import br.com.mbarbosa.blog.services.UserService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class UsersController {
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<?> delete(@PathVariable(required = true) Long id) {
+    public ResponseEntity<?> delete(@PathVariable(required = true) final Long id) {
         try {
             userService.deleteById(id);
         } catch (NotFoundException e) {

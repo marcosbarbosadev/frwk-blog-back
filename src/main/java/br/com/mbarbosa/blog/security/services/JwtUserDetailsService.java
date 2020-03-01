@@ -1,5 +1,5 @@
 package br.com.mbarbosa.blog.security.services;
-import br.com.mbarbosa.blog.controllers.UserService;
+import br.com.mbarbosa.blog.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

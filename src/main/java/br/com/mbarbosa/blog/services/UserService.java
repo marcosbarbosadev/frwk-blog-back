@@ -1,5 +1,6 @@
-package br.com.mbarbosa.blog.controllers;
+package br.com.mbarbosa.blog.services;
 
+import br.com.mbarbosa.blog.config.JwtTokenUtil;
 import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.repositories.UserRepository;
 import javassist.NotFoundException;
@@ -19,6 +20,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     public List<User> findAll() {
         return userRepository.findAll();
@@ -43,5 +47,12 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public User getRequestUser(String authorization) {
+        String token = authorization.split(" ")[1];
+        String userEmail = jwtTokenUtil.getUsernameFromToken(token);
+        User user = userRepository.findByEmail(userEmail);
+        return user;
     }
 }
