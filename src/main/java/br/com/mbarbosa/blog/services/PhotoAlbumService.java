@@ -5,6 +5,7 @@ import br.com.mbarbosa.blog.models.PhotoAlbum;
 import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.repositories.PhotoAlbumRepository;
 import br.com.mbarbosa.blog.repositories.PhotoRepository;
+import br.com.mbarbosa.blog.util.FileUtil;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class PhotoAlbumService {
     @Autowired
     private PhotoService photoService;
 
+    @Autowired
+    private PropertyService propertyService;
+
     public PhotoAlbum createPhotoAlbum(PhotoAlbum photoAlbum, User user) {
         photoAlbum.setUser(user);
         return photoAlbumRepository.save(photoAlbum);
@@ -52,10 +56,15 @@ public class PhotoAlbumService {
 
     private boolean removeAllPhotos(List<Photo> photos) {
         Optional<Photo> naoRemovido = photos.stream()
-                .filter(f -> !photoService.removeFile(f))
+                .filter(f -> !removeFile(f))
                 .findFirst();
         return !naoRemovido.isPresent();
     }
+
+    private boolean removeFile(Photo photo) {
+        return FileUtil.removeFile(photo, propertyService.getUploadDir());
+    }
+
 
     public List<PhotoAlbum> findAllFetchPhotos() {
         return photoAlbumRepository.findAllFetchPhotos();
@@ -64,6 +73,5 @@ public class PhotoAlbumService {
     public boolean isOwnerPhotoAlbum(PhotoAlbum photoAlbum, User user) {
         return ownerResourceService.isOwner(photoAlbum, user);
     }
-
 
 }

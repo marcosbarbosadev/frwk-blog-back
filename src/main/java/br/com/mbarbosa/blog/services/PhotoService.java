@@ -5,23 +5,16 @@ import br.com.mbarbosa.blog.models.PhotoAlbum;
 import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.repositories.PhotoAlbumRepository;
 import br.com.mbarbosa.blog.repositories.PhotoRepository;
+import br.com.mbarbosa.blog.util.FileUtil;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.acl.NotOwnerException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class PhotoService {
@@ -36,7 +29,7 @@ public class PhotoService {
     private OwnerResourceService ownerResourceService;
 
     @Autowired
-    private Environment env;
+    private PropertyService propertyService;
 
     public List<Photo> findAll() {
         return photoRepository.findAll();
@@ -57,18 +50,15 @@ public class PhotoService {
         photoRepository.delete(photo);
     }
 
-    public boolean removeFile(Photo photo) {
-
-        if(photo.getName() == null) {
-            return false;
-        }
-
-        String uploadDir = getUploadDir();
-        Path absolutePath = Paths.get(uploadDir, photo.getName());
-        return new File(absolutePath.toString()).delete();
+    private boolean removeFile(Photo photo) {
+        return FileUtil.removeFile(photo, propertyService.getUploadDir());
     }
 
-    public Photo addPhoto(Photo photo, Long photoAlbumId) throws NotFoundException, IOException {
+    public Photo addPhoto(Photo photo, Long photoAlbumId) throws NotFoundException, IOException, InvalidMediaTypeException {
+
+        if(!FileUtil.isJpeg(photo.getImageContents())) {
+            throw new InvalidMediaTypeException("não identificado", "Formato de arquivo não permitido.");
+        }
 
         Optional<PhotoAlbum> photoAlbumOptional = photoAlbumRepository.findById(photoAlbumId);
 
@@ -84,22 +74,11 @@ public class PhotoService {
     }
 
     private void saveImageFile(Photo photo) throws IOException {
-        byte[] imageContents = Base64.getDecoder().decode(photo.getImageContents());
-        Path absolutePath = Paths.get(getUploadDir(), photo.getName());
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(imageContents);
-        BufferedImage bufferedImage = ImageIO.read(bis);
-        ImageIO.write(bufferedImage, "jpg", new File(absolutePath.toString()));
+        FileUtil.saveImageFile(photo, propertyService.getUploadDir());
     }
 
     private String generateFotoName(Photo photo) {
-        String imageName = UUID.randomUUID().toString() + ".jpg";
-        photo.setName(imageName);
-        return imageName;
-    }
-
-    private String getUploadDir() {
-        return env.getProperty("blog.upload_dir");
+        return FileUtil.generateFotoName(photo);
     }
 
     private boolean isOwnerPhotoAlbum(PhotoAlbum photoAlbum, User user) {
