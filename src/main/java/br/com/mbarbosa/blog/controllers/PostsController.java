@@ -43,8 +43,10 @@ public class PostsController {
     @DeleteMapping(value = "{id}")
     public ResponseEntity<?> delete(@RequestHeader(value = "Authorization") final String authorization,
                                     @PathVariable(required = true) final Long id) {
+
+        User user = userService.getRequestUser(authorization);
+
         try {
-            User user = userService.getRequestUser(authorization);
             postService.deleteById(id, user);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

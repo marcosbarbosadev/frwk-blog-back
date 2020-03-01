@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.acl.NotOwnerException;
 import java.util.List;
 
@@ -43,13 +44,17 @@ public class PhotoAlbumsController {
     @DeleteMapping(value = "{id}")
     public ResponseEntity<?> delete(@RequestHeader(value = "Authorization") final String authorization,
                                     @PathVariable(required = true) final Long id) {
+
+        User user = userService.getRequestUser(authorization);
+
         try {
-            User user = userService.getRequestUser(authorization);
             photoAlbumService.deleteById(id, user);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (NotOwnerException e) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

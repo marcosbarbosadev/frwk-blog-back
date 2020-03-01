@@ -55,8 +55,10 @@ public class CommentsController {
     @DeleteMapping( value = "{id}")
     public ResponseEntity<?> delete(@RequestHeader(value = "Authorization") final String authorization,
                                     @PathVariable(required = true) final Long id) {
+
+        User user = userService.getRequestUser(authorization);
+
         try {
-            User user = userService.getRequestUser(authorization);
             commentService.deleteById(id, user);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

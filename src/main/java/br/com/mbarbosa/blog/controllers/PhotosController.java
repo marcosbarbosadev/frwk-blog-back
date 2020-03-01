@@ -42,7 +42,7 @@ public class PhotosController {
 
         Photo photoCreated = null;
         try {
-            photoCreated = photoAlbumService.addPhoto(photo, photoAlbumId);
+            photoCreated = photoService.addPhoto(photo, photoAlbumId);
         } catch (NotFoundException ex) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IOException e) {
@@ -55,13 +55,17 @@ public class PhotosController {
     @DeleteMapping(value = "{id}")
     public ResponseEntity<?> delete(@RequestHeader(value = "Authorization") final String authorization,
                                     @PathVariable(required = true) final Long id) {
+
+        User user = userService.getRequestUser(authorization);
+
         try {
-            User user = userService.getRequestUser(authorization);
             photoService.deleteById(id, user);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (NotOwnerException e) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
