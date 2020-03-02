@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.controllers;
 
+import br.com.mbarbosa.blog.dtos.PostDTO;
 import br.com.mbarbosa.blog.models.Post;
 import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.services.PostService;
@@ -33,9 +34,14 @@ public class PostsController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestHeader(value = "Authorization") final String authorization,
-        @Valid @RequestBody final Post post) {
+        @Valid @RequestBody final PostDTO postDto) {
 
         User user = userService.getRequestUser(authorization);
+
+        Post post = new Post();
+        post.setTitle(postDto.getTitle());
+        post.setDescription(postDto.getDescription());
+
         Post postCreated = postService.createPost(post, user);
         return new ResponseEntity<>(postCreated, HttpStatus.CREATED);
     }

@@ -1,5 +1,6 @@
 package br.com.mbarbosa.blog.controllers;
 
+import br.com.mbarbosa.blog.dtos.PhotoAlbumDTO;
 import br.com.mbarbosa.blog.models.PhotoAlbum;
 import br.com.mbarbosa.blog.models.User;
 import br.com.mbarbosa.blog.services.PhotoAlbumService;
@@ -34,9 +35,14 @@ public class PhotoAlbumsController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestHeader(value = "Authorization") final String authorization,
-        @Valid @RequestBody final PhotoAlbum photoAlbum) {
+        @Valid @RequestBody final PhotoAlbumDTO photoAlbumDto) {
 
         User user = userService.getRequestUser(authorization);
+
+        PhotoAlbum photoAlbum = new PhotoAlbum();
+        photoAlbum.setName(photoAlbumDto.getName());
+        photoAlbum.setDescription(photoAlbumDto.getDescription());
+
         PhotoAlbum photoAlbumCreated = photoAlbumService.createPhotoAlbum(photoAlbum, user);
         return new ResponseEntity<>(photoAlbumCreated, HttpStatus.CREATED);
     }
@@ -58,7 +64,5 @@ public class PhotoAlbumsController {
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 
 }
