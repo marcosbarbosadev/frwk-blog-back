@@ -38,4 +38,6 @@
 INSERT INTO frwk_blog.users (name, email, password, created_at, updated_at) VALUES ('Admin', 'admin@mail.com', '$2a$10$hWTMuPlYWJhVzlc7HrAeh.WuinWYRfbVwkG/Ul8D529KOZcmO4HaO', now(), now());
 - Para acessar a aplicação use o login "admin@mail.com" e a senha "dev"
 
-Obs.: Configurei o swagger, mas infelizmente eu não consegui fazer funcionar o acesso dos endpoints protegidos pela interface dele. Então só é possível usar ele para logar e os outros endpoints precisam ser acessados de um outro rest console.
+#### Importante
+Configurei o swagger, mas infelizmente eu não consegui fazer funcionar o acesso dos endpoints protegidos pela interface dele. Então só é possível usar ele para logar e os outros endpoints precisam ser acessados de um outro rest console.
+Para acessar os endpoints protegidos, basta copiar o token gerado e incluir header "Authorization" com valor "Bearer TOKEN_QUE_FOI_GERADO"
